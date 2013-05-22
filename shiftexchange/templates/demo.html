@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}Shift Exchange Demo{% endblock %}
+
+{% block extra_headers %}
+
+
+<script type="text/javascript">
+$(document).ready(function() {
+	$('#tabs a').click(function (e) {
+		e.preventDefault();
+		$(this).tab('show');
+	})
+
+});
+</script>
+
+{% endblock %}
+
+{% block main %}
+	<div class="content_box">
+	
+		<ul class="nav nav-tabs" id="tabs">
+			<li class="active"><a href="#tab_all">All Shifts</a></li>
+			<li><a href="#tab_myshifts">My Shifts</a></li>
+			<li><a href="#tab_post">Post a Shift</a></li>
+			<li><a href="#tab_allusers">All Users</a></li>
+		</ul>
+
+		<div class="tab-content">
+			<div class="tab-pane active" id="tab_all">
+				<table>
+					<thead>
+						<th style="border:1px solid black;">&nbsp;</th>
+						<th style="border:1px solid black;">Employer</th>
+						<th style="border:1px solid black;">Date and Time</th>
+						<th style="border:1px solid black;">Poster</th>
+						<th style="border:1px solid black;">Available?</th>
+						<th style="border:1px solid black;">Claimed By:</th>
+					</thead>
+					<tbody>
+					{% for shift in available_shifts %}
+					<tr>
+						<td>{{loop.index}}</td>
+						<td>{{shift.employer}}</td>
+						<td>{{shift.time}}</td>
+						<td>{{shift.poster.name}}</td>
+						<td>{{shift.claimable}}</td>
+						{% if shift.claimable == True %}
+							<td>
+								<form name="input" action="{{ url_for('claim_shift')}}" method="post">
+									<input type="text" name="shift_id" value="{{shift.id}}" style="display:none;">
+									<input class="btn btn-success" type="submit" value="Claim" style="">
+								</form>
+							</td>
+						{% else %}
+							<td>
+								{{shift.claimer.name}}
+								{% if shift.claimer.id == current_user.id %}
+									<form name="input" action="{{ url_for('unclaim_shift')}}" method="post">
+										<input type="text" name="shift_id" value="{{shift.id}}" style="display:none;">
+										<input class="btn btn-warning" type="submit" value="Unclaim" style="">
+									</form>
+								{% endif %}
+							</td>
+						{% endif %}
+					</tr>
+					{% endfor %}
+					</tbody>
+				</table>
+			</div>
+
+			<div class="tab-pane" id="tab_myshifts">
+				<h3>Posted Shifts</h3>
+				<table>
+					<thead>
+						<th style="border:1px solid black;">&nbsp;</th>
+						<th style="border:1px solid black;">Employer</th>
+						<th style="border:1px solid black;">Date and Time</th>
+						<th style="border:1px solid black;">Claimed By:</th>
+						<th style="border:1px solid black;">&nbsp;</th>
+					</thead>
+					<tbody>
+					{% for shift in posted_shifts %}
+					<tr>
+						<td>{{loop.index}}</td>
+						<td>{{shift.employer}}</td>
+						<td>{{shift.time}}</td>
+						{% if shift.claimable == False %}
+							<td>{{shift.claimer.name}}</td>
+						{% else %}
+							<td>Unclaimed</td>
+						{% endif %}
+						<td>
+							<form name="input" action="{{ url_for('delete_shift')}}" method="post">
+								<input type="text" name="shift_id" value="{{shift.id}}" style="display:none;">
+								<input class="btn btn-danger" type="submit" value="Delete" style="">
+							</form>
+						</td>
+					</tr>
+					{% endfor %}
+					</tbody>
+				</table>
+
+				<h3>Shifts I've Claimed</h3>
+				<table>
+					<thead>
+						<th style="border:1px solid black;">&nbsp;</th>
+						<th style="border:1px solid black;">Employer</th>
+						<th style="border:1px solid black;">Date and Time</th>
+						<th style="border:1px solid black;">Poster</th>
+						<th style="border:1px solid black;">&nbsp;</th>
+					</thead>
+					<tbody>
+					{% for shift in claimed_shifts %}
+					<tr>
+						<td>{{loop.index}}</td>
+						<td>{{shift.employer}}</td>
+						<td>{{shift.time}}</td>
+						<td>{{shift.poster.name}}</td>
+						<td>
+							<form name="input" action="{{ url_for('unclaim_shift')}}" method="post">
+								<input type="text" name="shift_id" value="{{shift.id}}" style="display:none;">
+								<input class="btn btn-warning" type="submit" value="Unclaim" style="">
+							</form>
+						</td>
+
+					</tr>
+					{% endfor %}
+					</tbody>
+				</table>
+			</div>
+
+			<div class="tab-pane" id="tab_post">
+				<form name="input" action="{{ url_for('post_shift')}}" method="post">
+					<div class="input_item">
+						<label>Employer</label>
+						<input type="text" name="employer">
+					</div>
+					<div class="input_item">
+						<label>Date and Time</label>
+						<input type="text" name="date">
+					</div>
+
+
+					<input class="btn btn-info" type="submit" value="Post This Shift" style="font-size:12pt;margin-top:20px;">
+				</form>
+			</div>
+
+			<div class="tab-pane" id="tab_allusers">
+				<table>
+					<thead>
+						<th style="border:1px solid black;">&nbsp;</th>
+						<th style="border:1px solid black;">Name</th>
+						<th style="border:1px solid black;">Email</th>
+					</thead>
+					<tbody>
+					{% for user in all_users %}
+					<tr>
+						<td>{{loop.index}}</td>
+						<td>{{user.name}}</td>
+						<td>{{user.email}}</td>
+					</tr>
+					{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+{% endblock %}

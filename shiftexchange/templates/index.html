@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+	{% block extra_headers %}
+	<script>
+	$(document).ready(function() {
+		
+		
+	});
+	</script>
+	{% endblock %}
+
+
+{% block main %}
+<div style="margin:50px;">
+	<a class="btn" href="{{url_for('login')}}">Login</a>
+	<a class="btn" href="{{url_for('create_account')}}">Create Account</a>
+</div>
+{% endblock %}
