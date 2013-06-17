@@ -12,8 +12,6 @@ login_manager.setup_app(app)
 
 app.secret_key = "DS53DFS2DF\SDF1SDF859DS5F2SD1F\2SD1F32SD1"
 
-
-
 import shiftexchange.views
 
     
