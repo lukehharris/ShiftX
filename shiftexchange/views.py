@@ -25,9 +25,9 @@ def demo():
 
 @app.route('/post_shift', methods=['POST'])
 def post_shift():
-    print request.form
+    #print request.form
     for item in request.form:
-        print item, request.form[item]
+        #print item, request.form[item]
         if request.form[item] == '' or request.form[item] == None:
             item_value = ''
 
@@ -42,9 +42,9 @@ def post_shift():
     
 @app.route('/claim_shift', methods=['POST'])
 def claim_shift():
-    print request.form
+    #print request.form
     for item in request.form:
-        print item, request.form[item]
+        #print item, request.form[item]
         if request.form[item] == '' or request.form[item] == None:
             item_value = ''
 
@@ -60,9 +60,9 @@ def claim_shift():
 
 @app.route('/unclaim_shift', methods=['POST'])
 def unclaim_shift():
-    print request.form
+    #print request.form
     for item in request.form:
-        print item, request.form[item]
+        #print item, request.form[item]
         if request.form[item] == '' or request.form[item] == None:
             item_value = ''
 
@@ -78,9 +78,9 @@ def unclaim_shift():
 
 @app.route('/delete_shift', methods=['POST'])
 def delete_shift():
-    print request.form
+    #print request.form
     for item in request.form:
-        print item, request.form[item]
+        #print item, request.form[item]
         if request.form[item] == '' or request.form[item] == None:
             item_value = ''
 
@@ -91,110 +91,6 @@ def delete_shift():
     db.session.commit()
 
     return redirect(url_for('demo'))
-
-
-@app.route('/submit_demo3', methods=['POST'])
-def submit_demo3():
-    names = {0:''}
-    income  = {0:{}}
-    basic_expenses = {0:{}}
-    debt_expenses = {0:{}}
-    misc_expenses = {0:{}}
-    debt_balances = {0:{}}
-    cash_balances = {0:{}}
-    rates = {0:{}}
-    print request.form
-    scenarios = []
-    for item in request.form:
-        print item, request.form[item]
-        if request.form[item] == '' or request.form[item] == None:
-            item_value = 0
-        else:
-            item_value = request.form[item].replace(",", "")
-        prefix = item[:3]
-        item_name = item[3:-2]
-        scenario = int(item[-1])
-        if scenario not in scenarios:
-            names.update({scenario:''})
-            income.update({scenario:{}})
-            basic_expenses.update({scenario:{}})
-            debt_expenses.update({scenario:{}})
-            misc_expenses.update({scenario:{}})
-            debt_balances.update({scenario:{}})
-            cash_balances.update({scenario:{}})
-            rates.update({scenario:{}})
-            scenarios.append(scenario)
-        if prefix == "na_":
-            names[scenario] = item_value
-        elif prefix == "in_":
-            income[scenario].update({item_name: item_value})
-        elif prefix == "be_":
-            basic_expenses[scenario].update({item_name: item_value})
-        elif prefix == "de_":
-            debt_expenses[scenario].update({item_name: item_value})
-        elif prefix == "me_":
-            misc_expenses[scenario].update({item_name: item_value})
-        elif prefix == "ba_":
-            debt_balances[scenario].update({item_name: item_value})
-        elif prefix == "cb_":
-            cash_balances[scenario].update({item_name: item_value})
-        elif prefix == "ra_":
-            rates[scenario].update({item_name: float(item_value)/100.0})
-    #print rates
-
-    scenario_count = len(scenarios)
-
-    d = build_demo3.build_demo3_data(names, income, basic_expenses, debt_expenses, misc_expenses, debt_balances, cash_balances, rates, scenario_count)
-
-    if current_user.is_active():
-        #remove existing scenarios
-        scenarios_query = current_user.scenarios.all()
-        for scenario in scenarios_query:
-            db.session.delete(scenario)
-
-
-        for scenario in range(0,scenario_count):
-        #for scenario in range(0,1):
-            new_scenario = Scenario(d[scenario])
-            if scenario == 0:
-                new_scenario.is_base = True
-            current_user.scenarios.append(new_scenario)
-        #current_user.data = d[0]
-        db.session.add(current_user)
-        db.session.commit()
-
-    return redirect(url_for('demo3_output_detail'))
-
-
-
-@app.route('/demo3_output')
-def demo3_output():
-    if current_user.is_anonymous():
-        return redirect(url_for('login'))
-    scenarios_query = current_user.scenarios.all()
-    scenarios = []
-    for scenario in scenarios_query:
-        scenarios.append(scenario.data)
-
-    #print scenarios
-
-    ## Chart Data and Labels ##
-    Chart1_data_pts = []
-    Chart1_labels = []
-    for x in range(0,len(scenarios)):
-        Chart1_data_pts.append([])
-        for y in range(0,len(scenarios[x]['net_worth']),12):
-            Chart1_data_pts[x].append(scenarios[x]['net_worth'][y])
-        #for k,v in scenarios[x]['net_worth'].iteritems():
-        #    Chart1_data_pts[x].append(v)
-    for x in range(0,len(scenarios[0]['net_worth']),12):
-        Chart1_labels.append(x)
-
-
-    ## / Chart Data and Labels ##
-
-    #return render_template('demo3_output.html', s=scenarios_query[1].data)
-    return render_template('demo3_output.html', s=scenarios,Chart1_data_pts=Chart1_data_pts,Chart1_labels=Chart1_labels)
 
 
 

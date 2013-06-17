@@ -9,9 +9,6 @@ class User(db.Model):
     email = db.Column(db.String(255), unique=True)
     password = db.Column(db.String)
     name = db.Column(db.String)
-    #data = db.Column(db.PickleType)
-    #shifts_posted = db.relationship('Shift', backref='user', lazy='dynamic')
-    #shifts_claimed = db.relationship('Shift', backref='user', lazy='dynamic')
   
     def __init__(self, email, password, name):
         self.email = email
